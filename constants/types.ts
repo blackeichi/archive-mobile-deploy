@@ -1,0 +1,26 @@
+export interface CategoryNode {
+  id: number;
+  parent_id: number | null;
+  type: "root" | "child";
+  name: string;
+  slug: string;
+  description?: string | null;
+  sort_order: number;
+  is_guest_room: boolean;
+  children?: CategoryNode[];
+}
+
+export interface PostItem {
+  id: number;
+  author_id: string;
+  category_id: number;
+  title: string;
+  slug: string;
+  content_md: string;
+  summary?: string | null;
+  thumbnail_url?: string | null;
+  visibility: "public" | "private";
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+}
