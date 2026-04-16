@@ -1,16 +1,17 @@
 import MarkdownViewer from "@/components/MarkdownViewer";
 import { PostItem } from "@/constants/types";
+import { useGetHighlights } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
 import { useLocalSearchParams } from "expo-router";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function formatDate(value?: string) {
   if (!value) return "";
@@ -37,15 +38,8 @@ export default function PostDetailScreen() {
   const postId = Number(params.id);
 
   const { post, loading, error } = usePost(postId);
-  const highlightMap = useMemo(
-    () => ({
-      "h1-0": "#FEF3C7",
-      "p-0": "#DBEAFE",
-      "p-2": "#FCE7F3",
-      "li-1": "#DCFCE7",
-    }),
-    [],
-  );
+  const { highLights } = useGetHighlights(postId);
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -123,7 +117,7 @@ export default function PostDetailScreen() {
         <View style={styles.bodyCard}>
           <MarkdownViewer
             content={post.content_md || ""}
-            highlightMap={highlightMap}
+            highlightMap={highLights}
           />
         </View>
       </ScrollView>
@@ -135,6 +129,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#F9FAFB",
+    paddingTop: 12,
   },
   container: {
     flex: 1,

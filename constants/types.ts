@@ -24,3 +24,13 @@ export interface PostItem {
   created_at: string;
   updated_at: string;
 }
+
+export type HighlightMap = Record<string, string>;
+
+export interface HighlightItem {
+  user_id: string;
+  post_id: number;
+  highlights: HighlightMap;
+  created_at?: string;
+  updated_at?: string;
+}

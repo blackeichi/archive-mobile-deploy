@@ -1,6 +1,6 @@
+import { HighlightMap } from "@/constants/types";
 import { createMarkdownRules } from "@/lib/markdown/createMarkdownRules";
 import { markdownStyles } from "@/lib/markdown/markdownStyles";
-import type { HighlightMap } from "@/lib/markdown/types";
 import React, { useMemo } from "react";
 import Markdown, { MarkdownIt } from "react-native-markdown-display";
 

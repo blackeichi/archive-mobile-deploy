@@ -1,6 +1,6 @@
+import { HighlightMap } from "@/constants/types";
 import React from "react";
 import { Image, Linking, Text, View } from "react-native";
-import type { HighlightMap } from "./types";
 
 type MarkdownNode = {
   key?: string;

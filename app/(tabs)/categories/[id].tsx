@@ -31,7 +31,10 @@ export default function CategoryPostsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView
+      contentContainerStyle={{ padding: 16 }}
+      style={{ paddingTop: 12 }}
+    >
       <Text style={{ fontSize: 24, fontWeight: "600", marginBottom: 16 }}>
         포스트 목록
       </Text>

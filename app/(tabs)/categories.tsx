@@ -28,7 +28,10 @@ export default function CategoriesTabScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView
+      contentContainerStyle={{ padding: 16 }}
+      style={{ paddingTop: 12 }}
+    >
       <Text style={{ fontSize: 24, fontWeight: "600", marginBottom: 16 }}>
         카테고리
       </Text>
