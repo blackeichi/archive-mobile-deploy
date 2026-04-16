@@ -23,13 +23,11 @@ type Props = {
   highlightMap: HighlightMap;
   setHighLights: (map: HighlightMap) => void;
   setIsChanged: (changed: boolean) => void;
-  visible: boolean;
   sentences: string[];
   paragraphId: string;
   activeColor: string;
   highlightedSentenceIndexes: number[];
   onClose: () => void;
-  onSelectColor: (color: string) => void;
   onClearAll: () => void;
 };
 
@@ -37,13 +35,11 @@ export function SentencePickerModal({
   highlightMap,
   setHighLights,
   setIsChanged,
-  visible,
   sentences,
   paragraphId,
   activeColor,
   highlightedSentenceIndexes,
   onClose,
-  onSelectColor,
   onClearAll,
 }: Props) {
   const [colorState, setColorState] = useState(activeColor);
@@ -51,7 +47,6 @@ export function SentencePickerModal({
     new Set(highlightedSentenceIndexes),
   );
   const onSave = useCallback(() => {
-    onSelectColor(colorState);
     const nextMap = { ...highlightMap };
     sentences.forEach((_, index) => {
       const sentenceId = buildSentenceId(paragraphId, index);
@@ -67,7 +62,6 @@ export function SentencePickerModal({
     });
   }, [
     colorState,
-    onSelectColor,
     highlightMap,
     sentences,
     paragraphId,
@@ -76,8 +70,6 @@ export function SentencePickerModal({
     setIsChanged,
     onClose,
   ]);
-
-  if (!visible) return null;
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>

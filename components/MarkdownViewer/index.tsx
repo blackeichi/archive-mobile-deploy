@@ -82,26 +82,6 @@ function MarkdownViewer({
     );
   }, [highlightMap, sentenceMode.paragraphId]);
 
-  const handleSelectSentenceColor = (color: string) => {
-    if (!sentenceMode.paragraphId) {
-      setSentenceMode((prev) => ({ ...prev, activeColor: color }));
-      return;
-    }
-
-    const nextMap = { ...highlightMap };
-    const keys = getSentenceHighlightKeys(nextMap, sentenceMode.paragraphId);
-
-    keys.forEach((key) => {
-      nextMap[key] = color;
-    });
-
-    delete nextMap[sentenceMode.paragraphId];
-
-    setHighLights(nextMap);
-    setIsChanged(true);
-    setSentenceMode((prev) => ({ ...prev, activeColor: color }));
-  };
-
   const handleClearSentenceHighlights = () => {
     if (!sentenceMode.paragraphId) return;
 
@@ -134,19 +114,19 @@ function MarkdownViewer({
         hasChildHighlights={popupState.hasChildHighlights}
       />
 
-      <SentencePickerModal
-        highlightMap={highlightMap}
-        setHighLights={setHighLights}
-        setIsChanged={setIsChanged}
-        visible={sentenceMode.visible}
-        sentences={sentences}
-        paragraphId={sentenceMode.paragraphId as string}
-        activeColor={sentenceMode.activeColor}
-        highlightedSentenceIndexes={highlightedSentenceIndexes}
-        onClose={closeSentencePicker}
-        onSelectColor={handleSelectSentenceColor}
-        onClearAll={handleClearSentenceHighlights}
-      />
+      {sentenceMode.visible && (
+        <SentencePickerModal
+          highlightMap={highlightMap}
+          setHighLights={setHighLights}
+          setIsChanged={setIsChanged}
+          sentences={sentences}
+          paragraphId={sentenceMode.paragraphId as string}
+          activeColor={sentenceMode.activeColor}
+          highlightedSentenceIndexes={highlightedSentenceIndexes}
+          onClose={closeSentencePicker}
+          onClearAll={handleClearSentenceHighlights}
+        />
+      )}
     </View>
   );
 }

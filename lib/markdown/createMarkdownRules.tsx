@@ -1,8 +1,5 @@
 import { HighlightMap } from "@/constants/types";
-import {
-  getSentenceHighlightKeys,
-  splitIntoSentences,
-} from "@/lib/markdown/sentence";
+import { splitIntoSentences } from "@/lib/markdown/sentence";
 import React from "react";
 import {
   GestureResponderEvent,
@@ -159,7 +156,6 @@ export function createMarkdownRules(
     ) => {
       const id = nextId("p");
       const rawText = flattenText(children).trim();
-      const sentenceKeys = getSentenceHighlightKeys(highlightMap, id);
       const paragraphColor = highlightMap[id];
       const sentences = splitIntoSentences(rawText);
 
