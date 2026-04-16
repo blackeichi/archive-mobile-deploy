@@ -1,6 +1,13 @@
 import { HighlightMap } from "@/constants/types";
 import React from "react";
-import { Image, Linking, Text, View } from "react-native";
+import {
+  GestureResponderEvent,
+  Image,
+  Linking,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 
 type MarkdownNode = {
   key?: string;
@@ -24,7 +31,10 @@ function ScrollCodeBlock({
   return <View style={style}>{children}</View>;
 }
 
-export function createMarkdownRules(highlightMap: HighlightMap = {}) {
+export function createMarkdownRules(
+  highlightMap: HighlightMap = {},
+  handleTap: (id: string, e: GestureResponderEvent) => void,
+) {
   const counters: Record<CounterKey, number> = {
     h1: 0,
     h2: 0,
@@ -48,8 +58,6 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     return {
       backgroundColor: color,
       borderRadius: 8,
-      paddingHorizontal: 4,
-      paddingVertical: 2,
     } as const;
   };
 
@@ -62,7 +70,11 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("h1");
       return (
-        <Text key={node.key} style={[styles.heading1, getHighlightStyle(id)]}>
+        <Text
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.heading1, getHighlightStyle(id)]}
+        >
           {children}
         </Text>
       );
@@ -76,7 +88,11 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("h2");
       return (
-        <Text key={node.key} style={[styles.heading2, getHighlightStyle(id)]}>
+        <Text
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.heading2, getHighlightStyle(id)]}
+        >
           {children}
         </Text>
       );
@@ -90,7 +106,11 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("h3");
       return (
-        <Text key={node.key} style={[styles.heading3, getHighlightStyle(id)]}>
+        <Text
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.heading3, getHighlightStyle(id)]}
+        >
           {children}
         </Text>
       );
@@ -104,7 +124,11 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("h4");
       return (
-        <Text key={node.key} style={[styles.heading4, getHighlightStyle(id)]}>
+        <Text
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.heading4, getHighlightStyle(id)]}
+        >
           {children}
         </Text>
       );
@@ -118,7 +142,11 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("p");
       return (
-        <Text key={node.key} style={[styles.paragraph, getHighlightStyle(id)]}>
+        <Text
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.paragraph, getHighlightStyle(id)]}
+        >
           {children}
         </Text>
       );
@@ -132,10 +160,14 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("li");
       return (
-        <View key={node.key} style={[styles.listItem, getHighlightStyle(id)]}>
+        <Pressable
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.listItem, getHighlightStyle(id)]}
+        >
           <Text style={styles.listItemBullet}>• </Text>
           <View style={styles.listItemContent}>{children}</View>
-        </View>
+        </Pressable>
       );
     },
 
@@ -147,9 +179,13 @@ export function createMarkdownRules(highlightMap: HighlightMap = {}) {
     ) => {
       const id = nextId("blockquote");
       return (
-        <View key={node.key} style={[styles.blockquote, getHighlightStyle(id)]}>
+        <Pressable
+          key={node.key}
+          onPress={(e) => handleTap(id, e)}
+          style={[styles.blockquote, getHighlightStyle(id)]}
+        >
           {children}
-        </View>
+        </Pressable>
       );
     },
 
