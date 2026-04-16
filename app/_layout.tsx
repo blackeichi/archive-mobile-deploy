@@ -15,7 +15,15 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {user ? <Stack.Screen name="(tabs)" /> : <Stack.Screen name="(auth)" />}
+      {user ? (
+        <>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="categories/[id]" />
+          <Stack.Screen name="posts/[id]" />
+        </>
+      ) : (
+        <Stack.Screen name="(auth)" />
+      )}
     </Stack>
   );
 }
