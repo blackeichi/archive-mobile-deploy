@@ -1,5 +1,5 @@
 import { HighlightMap } from "@/constants/types";
-import { useDoubleTap } from "@/hooks/useDoubleTap";
+import { removeParagraphSentenceHighlights } from "@/lib/markdown/sentence";
 import { useCallback, useState } from "react";
 import { GestureResponderEvent } from "react-native";
 
@@ -16,28 +16,29 @@ export function useHighlightController({
 }: UseHighlightControllerParams) {
   const [popupState, setPopupState] = useState({
     isOpen: false,
-    position: { x: 0, y: 0 },
+    position: { x: 30, y: 0 },
     elementId: null as string | null,
     hasHighlight: false,
+    hasChildHighlights: false,
   });
 
-  const handleDoubleTap = useCallback(
+  const handleLongPress = useCallback(
     (id: string, e: GestureResponderEvent) => {
       const { pageY } = e.nativeEvent;
+      const hasChildHighlights = Object.keys(highlightMap).some((key) =>
+        key.startsWith(`${id}:s-`),
+      );
 
       setPopupState({
         isOpen: true,
         position: { x: 30, y: pageY + 4 },
         elementId: id,
         hasHighlight: !!highlightMap[id],
+        hasChildHighlights,
       });
     },
     [highlightMap],
   );
-
-  const handleTap = useDoubleTap({
-    onDoubleTap: handleDoubleTap,
-  });
 
   const closePopup = useCallback(() => {
     setPopupState((prev) => ({ ...prev, isOpen: false }));
@@ -45,9 +46,14 @@ export function useHighlightController({
 
   const selectColor = useCallback(
     (color: string) => {
-      if (popupState.elementId && setHighLights) {
+      if (popupState.elementId) {
+        const clearedChildren = removeParagraphSentenceHighlights(
+          highlightMap,
+          popupState.elementId,
+        );
+
         setHighLights({
-          ...highlightMap,
+          ...clearedChildren,
           [popupState.elementId]: color,
         });
         setIsChanged(true);
@@ -59,7 +65,7 @@ export function useHighlightController({
   );
 
   const removeHighlight = useCallback(() => {
-    if (popupState.elementId && setHighLights) {
+    if (popupState.elementId) {
       const nextMap = { ...highlightMap };
       delete nextMap[popupState.elementId];
       setHighLights(nextMap);
@@ -69,11 +75,25 @@ export function useHighlightController({
     setPopupState((prev) => ({ ...prev, isOpen: false }));
   }, [popupState.elementId, setHighLights, highlightMap, setIsChanged]);
 
+  const removeSentenceHighlights = useCallback(() => {
+    if (popupState.elementId) {
+      const nextMap = removeParagraphSentenceHighlights(
+        highlightMap,
+        popupState.elementId,
+      );
+      setHighLights(nextMap);
+      setIsChanged(true);
+    }
+
+    setPopupState((prev) => ({ ...prev, isOpen: false }));
+  }, [popupState.elementId, setHighLights, highlightMap, setIsChanged]);
+
   return {
     popupState,
-    handleTap,
+    handleLongPress,
     closePopup,
     selectColor,
     removeHighlight,
+    removeSentenceHighlights,
   };
 }

@@ -79,16 +79,13 @@ export const markdownStyles = {
     marginBottom: 12,
   },
 
-  codeInline: {
-    backgroundColor: "#F3F4F6",
+  code_inline: {
     color: "#111827",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    fontSize: 13,
+    backgroundColor: "#F3F4F6",
+    fontSize: 14,
   },
 
-  codeBlock: {
+  code_block: {
     backgroundColor: "#F3F4F6",
     borderRadius: 10,
     padding: 12,

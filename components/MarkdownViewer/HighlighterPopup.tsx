@@ -21,7 +21,9 @@ type Props = {
   onClose: () => void;
   onSelectColor: (color: string) => void;
   onRemove: () => void;
+  onRemoveSentences: () => void;
   hasHighlight: boolean;
+  hasChildHighlights: boolean;
 };
 
 export function HighlighterPopup({
@@ -30,9 +32,13 @@ export function HighlighterPopup({
   onClose,
   onSelectColor,
   onRemove,
+  onRemoveSentences,
   hasHighlight,
+  hasChildHighlights,
 }: Props) {
   if (!isOpen) return null;
+
+  const showColorPicker = !hasHighlight && !hasChildHighlights;
 
   return (
     <Modal visible={isOpen} transparent onRequestClose={onClose}>
@@ -47,13 +53,9 @@ export function HighlighterPopup({
           ]}
           onPress={() => {}}
         >
-          {hasHighlight ? (
-            <Pressable style={styles.removeButton} onPress={onRemove}>
-              <Text style={styles.removeButtonText}>형광펜 지우기</Text>
-            </Pressable>
-          ) : (
+          {showColorPicker ? (
             <View style={styles.content}>
-              <Text style={styles.label}>색상 선택</Text>
+              <Text style={styles.label}>문단 하이라이트 색상</Text>
               <View style={styles.colorRow}>
                 {COLORS.map((color) => (
                   <Pressable
@@ -66,6 +68,22 @@ export function HighlighterPopup({
                   />
                 ))}
               </View>
+            </View>
+          ) : (
+            <View style={styles.actionGroup}>
+              {hasHighlight ? (
+                <Pressable style={styles.removeButton} onPress={onRemove}>
+                  <Text style={styles.removeButtonText}>문단 하이라이트 지우기</Text>
+                </Pressable>
+              ) : null}
+
+              {hasChildHighlights ? (
+                <Pressable style={styles.removeSentenceButton} onPress={onRemoveSentences}>
+                  <Text style={styles.removeSentenceButtonText}>
+                    이 문단의 문장 하이라이트 모두 지우기
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
           )}
         </Pressable>
@@ -89,6 +107,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
+    maxWidth: 280,
   },
   content: {
     gap: 8,
@@ -101,6 +120,7 @@ const styles = StyleSheet.create({
   colorRow: {
     flexDirection: "row",
     gap: 8,
+    flexWrap: "wrap",
   },
   colorButton: {
     width: 32,
@@ -109,14 +129,29 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#525252",
   },
+  actionGroup: {
+    gap: 8,
+  },
   removeButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     backgroundColor: "#fca5a5",
     borderRadius: 8,
   },
   removeButtonText: {
     fontSize: 14,
     fontWeight: "600",
+    color: "#111827",
+  },
+  removeSentenceButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#fed7aa",
+    borderRadius: 8,
+  },
+  removeSentenceButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#7c2d12",
   },
 });

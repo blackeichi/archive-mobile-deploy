@@ -7,17 +7,24 @@ import Markdown, { MarkdownIt } from "react-native-markdown-display";
 type MarkdownContentProps = {
   content: string;
   highlightMap: HighlightMap;
-  handleTap: (id: string, e: any) => void;
+  handleLongPress: (id: string, e: any) => void;
+  handleLongPressParagraph: (params: { id: string; text: string }) => void;
 };
 
 const MarkdownContent = ({
   content,
   highlightMap,
-  handleTap,
+  handleLongPress,
+  handleLongPressParagraph,
 }: MarkdownContentProps) => {
   const rules = useMemo(
-    () => createMarkdownRules(highlightMap, handleTap),
-    [highlightMap, handleTap],
+    () =>
+      createMarkdownRules(
+        highlightMap,
+        handleLongPress,
+        handleLongPressParagraph,
+      ),
+    [highlightMap, handleLongPress, handleLongPressParagraph],
   );
 
   const markdownIt = useMemo(() => MarkdownIt({ typographer: true }), []);

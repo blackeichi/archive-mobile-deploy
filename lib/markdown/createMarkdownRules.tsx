@@ -1,4 +1,8 @@
 import { HighlightMap } from "@/constants/types";
+import {
+  getSentenceHighlightKeys,
+  splitIntoSentences,
+} from "@/lib/markdown/sentence";
 import React from "react";
 import {
   GestureResponderEvent,
@@ -31,9 +35,22 @@ function ScrollCodeBlock({
   return <View style={style}>{children}</View>;
 }
 
+function flattenText(value: React.ReactNode): string {
+  if (typeof value === "string" || typeof value === "number")
+    return String(value);
+  if (Array.isArray(value)) return value.map(flattenText).join("");
+  if (React.isValidElement(value)) {
+    return flattenText(
+      (value.props as { children?: React.ReactNode }).children,
+    );
+  }
+  return "";
+}
+
 export function createMarkdownRules(
   highlightMap: HighlightMap = {},
-  handleTap: (id: string, e: GestureResponderEvent) => void,
+  handleLongPress: (id: string, e: GestureResponderEvent) => void,
+  handleLongPressParagraph: (params: { id: string; text: string }) => void,
 ) {
   const counters: Record<CounterKey, number> = {
     h1: 0,
@@ -72,7 +89,7 @@ export function createMarkdownRules(
       return (
         <Text
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.heading1, getHighlightStyle(id)]}
         >
           {children}
@@ -90,7 +107,7 @@ export function createMarkdownRules(
       return (
         <Text
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.heading2, getHighlightStyle(id)]}
         >
           {children}
@@ -108,7 +125,7 @@ export function createMarkdownRules(
       return (
         <Text
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.heading3, getHighlightStyle(id)]}
         >
           {children}
@@ -126,7 +143,7 @@ export function createMarkdownRules(
       return (
         <Text
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.heading4, getHighlightStyle(id)]}
         >
           {children}
@@ -141,14 +158,43 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("p");
+      const rawText = flattenText(children).trim();
+      const sentenceKeys = getSentenceHighlightKeys(highlightMap, id);
+      const paragraphColor = highlightMap[id];
+      const sentences = splitIntoSentences(rawText);
+
       return (
-        <Text
+        <Pressable
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
-          style={[styles.paragraph, getHighlightStyle(id)]}
+          delayLongPress={220}
+          onLongPress={() => {
+            if (rawText) handleLongPressParagraph({ id, text: rawText });
+          }}
         >
-          {children}
-        </Text>
+          <View>
+            {sentences.map((sentence, index) => {
+              const sentenceId = `${id}:s-${index}`;
+              const sentenceColor = highlightMap[sentenceId] || paragraphColor;
+              return (
+                <Text
+                  key={sentenceId}
+                  style={[
+                    styles.paragraph,
+                    { marginBottom: 4 },
+                    sentenceColor
+                      ? {
+                          backgroundColor: sentenceColor,
+                          borderRadius: 8,
+                        }
+                      : null,
+                  ]}
+                >
+                  {sentence}
+                </Text>
+              );
+            })}
+          </View>
+        </Pressable>
       );
     },
 
@@ -162,7 +208,7 @@ export function createMarkdownRules(
       return (
         <Pressable
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.listItem, getHighlightStyle(id)]}
         >
           <Text style={styles.listItemBullet}>• </Text>
@@ -181,7 +227,7 @@ export function createMarkdownRules(
       return (
         <Pressable
           key={node.key}
-          onPress={(e) => handleTap(id, e)}
+          onLongPress={(e) => handleLongPress(id, e)}
           style={[styles.blockquote, getHighlightStyle(id)]}
         >
           {children}
@@ -189,25 +235,14 @@ export function createMarkdownRules(
       );
     },
 
-    code_inline: (
-      node: MarkdownNode,
-      children: React.ReactNode,
-      _parent: unknown,
-      styles: MarkdownRenderStyles,
-    ) => (
-      <Text key={node.key} style={styles.codeInline}>
-        {children}
-      </Text>
-    ),
-
     fence: (
-      node: MarkdownNode,
-      children: React.ReactNode,
+      node: MarkdownNode & { content?: string },
+      _children: React.ReactNode,
       _parent: unknown,
       styles: MarkdownRenderStyles,
     ) => (
-      <ScrollCodeBlock key={node.key} style={styles.codeBlock}>
-        {children}
+      <ScrollCodeBlock key={node.key} style={styles.code_block}>
+        {node.content}
       </ScrollCodeBlock>
     ),
 
@@ -217,7 +252,7 @@ export function createMarkdownRules(
       _parent: unknown,
       styles: MarkdownRenderStyles,
     ) => (
-      <ScrollCodeBlock key={node.key} style={styles.codeBlock}>
+      <ScrollCodeBlock key={node.key} style={styles.code_block}>
         {children}
       </ScrollCodeBlock>
     ),
