@@ -1,6 +1,10 @@
 import MarkdownViewer from "@/components/MarkdownViewer";
 import TopContents from "@/components/post/TopContents";
-import { useGetHighlights, useSaveHighlights } from "@/hooks/useHighlights";
+import {
+  useDeleteHighlights,
+  useGetHighlights,
+  useSaveHighlights,
+} from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -25,6 +29,12 @@ export default function PostDetailScreen() {
     postId,
     highLights,
   );
+
+  const hasHighlights = Object.keys(highLights).length > 0;
+  const { confirmDelete } = useDeleteHighlights(postId, () => {
+    setHighLights({});
+    setIsChanged(false);
+  });
 
   if (loading) {
     return (
@@ -67,11 +77,18 @@ export default function PostDetailScreen() {
         <Text style={styles.backButtonText}>←</Text>
       </Pressable>
       <View style={styles.page}>
-        {isChanged && (
-          <Pressable style={styles.saveButton} onPress={confirmSave}>
-            <Text style={styles.saveButtonText}>저장</Text>
-          </Pressable>
-        )}
+        <View style={styles.actionRow}>
+          {hasHighlights && (
+            <Pressable style={styles.deleteButton} onPress={confirmDelete}>
+              <Text style={styles.deleteButtonText}>하이라이트 삭제</Text>
+            </Pressable>
+          )}
+          {isChanged && (
+            <Pressable style={styles.saveButton} onPress={confirmSave}>
+              <Text style={styles.saveButtonText}>저장</Text>
+            </Pressable>
+          )}
+        </View>
 
         <ScrollView
           style={styles.container}
@@ -159,17 +176,31 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "600",
   },
-  saveButton: {
+  actionRow: {
     position: "absolute",
     top: 12,
     right: 12,
     zIndex: 1000,
+    flexDirection: "row",
+    gap: 8,
+  },
+  saveButton: {
     backgroundColor: "#2563eb",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
   },
   saveButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  deleteButton: {
+    backgroundColor: "#EF4444",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  deleteButtonText: {
     color: "#fff",
     fontWeight: "600",
   },

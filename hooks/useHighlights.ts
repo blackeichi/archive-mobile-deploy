@@ -98,3 +98,44 @@ export function useSaveHighlights(postId: number, highLights: HighlightMap) {
     confirmSave,
   };
 }
+
+export function useDeleteHighlights(postId: number, onSuccess: () => void) {
+  const [loading, setLoading] = useState(false);
+
+  const confirmDelete = useCallback(() => {
+    Alert.alert(
+      "하이라이트 삭제",
+      "모든 하이라이트를 삭제할까요?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "삭제",
+          style: "destructive",
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await apiRequest<any>(`/highlight/${postId}`, {
+                method: "DELETE",
+              });
+              onSuccess();
+            } catch (error) {
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "삭제 중 오류가 발생했습니다.";
+              Alert.alert("오류", message);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [postId, onSuccess]);
+
+  return { confirmDelete, loading };
+}
