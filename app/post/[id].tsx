@@ -100,40 +100,38 @@ export default function PostDetailScreen() {
       </SafeAreaView>
     );
   }
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.page}>
+      <View style={styles.actionRow}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>←</Text>
         </Pressable>
-        <View style={styles.actionRow}>
+        <View style={styles.actionButtons}>
           {hasHighlights && (
             <Pressable style={styles.deleteButton} onPress={confirmDelete}>
-              <MaterialIcons name="delete-sweep" size={20} color="#fff" />
+              <MaterialIcons name="delete-sweep" size={24} />
             </Pressable>
           )}
           {isChanged && (
             <Pressable style={styles.saveButton} onPress={confirmSave}>
-              <Feather name="save" size={20} color="#fff" />
+              <Feather name="save" size={24} />
             </Pressable>
           )}
         </View>
-
+      </View>
+      <View style={styles.page}>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
           <TopContents post={post} />
-          <View style={styles.bodyCard}>
-            <MarkdownViewer
-              content={post.content_md || ""}
-              highlightMap={highLights}
-              setHighLights={setHighLights}
-              setIsChanged={setIsChanged}
-            />
-          </View>
+          <MarkdownViewer
+            content={post.content_md || ""}
+            highlightMap={highLights}
+            setHighLights={setHighLights}
+            setIsChanged={setIsChanged}
+          />
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -143,28 +141,21 @@ export default function PostDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
-    paddingTop: 12,
+    position: "relative",
+    backgroundColor: "white",
   },
   page: {
     flex: 1,
-    position: "relative",
+    paddingTop: 42,
   },
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "white",
   },
   contentContainer: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 32,
-  },
-  bodyCard: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 16,
-    padding: 16,
   },
   errorTitle: {
     fontSize: 18,
@@ -191,16 +182,8 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   backButton: {
-    position: "absolute",
-    top: 12,
-    left: 12,
-    zIndex: 1000,
     width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    justifyContent: "center",
+    height: 36,
   },
   backButtonText: {
     fontSize: 22,
@@ -208,17 +191,27 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: 0,
+    left: 0,
     zIndex: 1000,
+    width: "100%",
     flexDirection: "row",
-    gap: 8,
+    justifyContent: "space-between",
+    backgroundColor: "white",
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+    paddingTop: 32,
+    paddingBottom: 4,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 10,
   },
   saveButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#2563eb",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -226,7 +219,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#EF4444",
     alignItems: "center",
     justifyContent: "center",
   },

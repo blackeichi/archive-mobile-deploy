@@ -1,6 +1,14 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginScreen() {
@@ -26,41 +34,55 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", padding: 24, gap: 12 }}>
-      <Text style={{ fontSize: 24, fontWeight: "600" }}>로그인</Text>
-
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="이메일"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 12,
-          borderRadius: 8,
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          padding: 24,
         }}
-      />
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={{ gap: 12 }}>
+          <Text style={{ fontSize: 24, fontWeight: "600" }}>로그인</Text>
 
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder="비밀번호"
-        secureTextEntry
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 12,
-          borderRadius: 8,
-        }}
-      />
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="이메일"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={{
+              borderWidth: 1,
+              borderColor: "#ccc",
+              padding: 12,
+              borderRadius: 8,
+            }}
+          />
 
-      {errorMessage ? (
-        <Text style={{ color: "red" }}>{errorMessage}</Text>
-      ) : null}
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="비밀번호"
+            secureTextEntry
+            style={{
+              borderWidth: 1,
+              borderColor: "#ccc",
+              padding: 12,
+              borderRadius: 8,
+            }}
+          />
 
-      <Button title="로그인" onPress={onSubmit} />
-    </View>
+          {errorMessage ? (
+            <Text style={{ color: "red" }}>{errorMessage}</Text>
+          ) : null}
+
+          <Button title="로그인" onPress={onSubmit} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

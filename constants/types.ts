@@ -23,6 +23,7 @@ export interface PostItem {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
+  category_name: string;
 }
 
 export type HighlightMap = Record<string, string>;

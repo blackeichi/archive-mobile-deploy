@@ -1,26 +1,26 @@
 export const markdownStyles = {
   body: {
     color: "#111827",
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 22,
   },
 
   heading1: {
-    fontSize: 24,
+    fontSize: 22,
     lineHeight: 32,
     fontWeight: "700" as const,
     color: "#111827",
-    marginTop: 24,
-    marginBottom: 16,
+    marginBottom: 20,
+    padding: 5,
   },
 
   heading2: {
-    fontSize: 20,
+    fontSize: 19,
     lineHeight: 28,
     fontWeight: "700" as const,
     color: "#111827",
-    marginTop: 20,
-    marginBottom: 12,
+    marginBottom: 10,
+    padding: 5,
   },
 
   heading3: {
@@ -28,8 +28,8 @@ export const markdownStyles = {
     lineHeight: 24,
     fontWeight: "600" as const,
     color: "#111827",
-    marginTop: 16,
     marginBottom: 10,
+    padding: 3,
   },
 
   heading4: {
@@ -37,51 +37,59 @@ export const markdownStyles = {
     lineHeight: 22,
     fontWeight: "600" as const,
     color: "#111827",
-    marginTop: 14,
     marginBottom: 8,
+    padding: 3,
   },
 
   paragraph: {
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 22,
     color: "#374151",
-    marginBottom: 12,
+    marginBottom: 8,
+    padding: 3,
   },
 
   bullet_list: {
-    marginBottom: 12,
+    marginBottom: 8,
+    padding: 3,
   },
 
   ordered_list: {
-    marginBottom: 12,
+    marginBottom: 8,
+    padding: 3,
   },
 
   listItem: {
     flexDirection: "row" as const,
     alignItems: "flex-start" as const,
     marginBottom: 8,
+    padding: 3,
   },
 
   listItemBullet: {
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 22,
     color: "#374151",
+    padding: 3,
   },
 
   listItemContent: {
     flex: 1,
+    padding: 3,
   },
 
   blockquote: {
     borderLeftWidth: 4,
     borderLeftColor: "#E5E7EB",
+    padding: 3,
     paddingLeft: 12,
-    marginBottom: 12,
+    marginBottom: 8,
   },
 
   link: {
     color: "#2563EB",
     textDecorationLine: "underline" as const,
+    padding: 3,
   },
 
   image: {
