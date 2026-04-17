@@ -66,7 +66,7 @@ export function useSaveHighlights(postId: number, highLights: HighlightMap) {
     if (!isChanged || !saveHighlights) return;
 
     Alert.alert(
-      "하이라이트 저장",
+      "💾 하이라이트 저장",
       "현재 하이라이트 내용을 저장할까요?",
       [
         {
@@ -104,7 +104,7 @@ export function useDeleteHighlights(postId: number, onSuccess: () => void) {
 
   const confirmDelete = useCallback(() => {
     Alert.alert(
-      "하이라이트 삭제",
+      "🚨 하이라이트 삭제",
       "모든 하이라이트를 삭제할까요?",
       [
         {

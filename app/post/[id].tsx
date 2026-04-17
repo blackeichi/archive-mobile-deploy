@@ -6,10 +6,12 @@ import {
   useSaveHighlights,
 } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -29,6 +31,34 @@ export default function PostDetailScreen() {
     postId,
     highLights,
   );
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      if (!isChanged) return;
+
+      e.preventDefault();
+
+      Alert.alert(
+        "😮 저장하지 않은 변경사항",
+        "저장하지 않은 하이라이트는 삭제됩니다. 계속할까요?",
+        [
+          { text: "취소", style: "cancel" },
+          {
+            text: "확인",
+            style: "destructive",
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ],
+        { cancelable: true },
+      );
+    });
+    return () => {
+      // navigation.addListener는 리스너 해제 함수를 반환. 그러므로 unsubscribe()를 호출하여 리스너를 제거할 수 있다.
+      unsubscribe();
+    };
+  }, [navigation, isChanged]);
 
   const hasHighlights = Object.keys(highLights).length > 0;
   const { confirmDelete } = useDeleteHighlights(postId, () => {
@@ -73,19 +103,19 @@ export default function PostDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>←</Text>
-      </Pressable>
       <View style={styles.page}>
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>←</Text>
+        </Pressable>
         <View style={styles.actionRow}>
           {hasHighlights && (
             <Pressable style={styles.deleteButton} onPress={confirmDelete}>
-              <Text style={styles.deleteButtonText}>하이라이트 삭제</Text>
+              <MaterialIcons name="delete-sweep" size={20} color="#fff" />
             </Pressable>
           )}
           {isChanged && (
             <Pressable style={styles.saveButton} onPress={confirmSave}>
-              <Text style={styles.saveButtonText}>저장</Text>
+              <Feather name="save" size={20} color="#fff" />
             </Pressable>
           )}
         </View>
@@ -185,23 +215,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   saveButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#2563eb",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    alignItems: "center",
+    justifyContent: "center",
   },
   deleteButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#EF4444",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
