@@ -22,16 +22,6 @@ type MarkdownRenderStyles = Record<string, any>;
 
 type CounterKey = "h1" | "h2" | "h3" | "h4" | "p" | "li" | "blockquote";
 
-function ScrollCodeBlock({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style: any;
-}) {
-  return <View style={style}>{children}</View>;
-}
-
 function flattenText(value: React.ReactNode): string {
   if (typeof value === "string" || typeof value === "number")
     return String(value);
@@ -230,28 +220,6 @@ export function createMarkdownRules(
         </Pressable>
       );
     },
-
-    fence: (
-      node: MarkdownNode & { content?: string },
-      _children: React.ReactNode,
-      _parent: unknown,
-      styles: MarkdownRenderStyles,
-    ) => (
-      <ScrollCodeBlock key={node.key} style={styles.code_block}>
-        {node.content}
-      </ScrollCodeBlock>
-    ),
-
-    code_block: (
-      node: MarkdownNode,
-      children: React.ReactNode,
-      _parent: unknown,
-      styles: MarkdownRenderStyles,
-    ) => (
-      <ScrollCodeBlock key={node.key} style={styles.code_block}>
-        {children}
-      </ScrollCodeBlock>
-    ),
 
     link: (
       node: MarkdownNode,

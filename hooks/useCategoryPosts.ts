@@ -12,9 +12,10 @@ export function useCategoryPosts(categoryId: number) {
     setError("");
 
     try {
-      const response = await apiRequest<any>(`/posts/category/${categoryId}`);
-      const data = response.data ?? response;
-      setPosts(data);
+      const response = await apiRequest<PostItem[]>(
+        `/posts/category/${categoryId}`,
+      );
+      setPosts(response);
     } catch (err: any) {
       setError(err.message || "포스트를 불러오지 못했습니다.");
     } finally {

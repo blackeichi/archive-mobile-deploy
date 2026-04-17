@@ -1,13 +1,13 @@
 export const markdownStyles = {
   body: {
     color: "#111827",
-    fontSize: 14,
+    fontSize: 12,
     lineHeight: 22,
   },
 
   heading1: {
-    fontSize: 26,
-    lineHeight: 34,
+    fontSize: 24,
+    lineHeight: 32,
     fontWeight: "700" as const,
     color: "#111827",
     marginTop: 24,
@@ -15,8 +15,8 @@ export const markdownStyles = {
   },
 
   heading2: {
-    fontSize: 22,
-    lineHeight: 30,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: "700" as const,
     color: "#111827",
     marginTop: 20,
@@ -24,8 +24,8 @@ export const markdownStyles = {
   },
 
   heading3: {
-    fontSize: 18,
-    lineHeight: 26,
+    fontSize: 16,
+    lineHeight: 24,
     fontWeight: "600" as const,
     color: "#111827",
     marginTop: 16,
@@ -33,8 +33,8 @@ export const markdownStyles = {
   },
 
   heading4: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 14,
+    lineHeight: 22,
     fontWeight: "600" as const,
     color: "#111827",
     marginTop: 14,
@@ -42,8 +42,8 @@ export const markdownStyles = {
   },
 
   paragraph: {
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: 12,
+    lineHeight: 22,
     color: "#374151",
     marginBottom: 12,
   },
@@ -63,8 +63,8 @@ export const markdownStyles = {
   },
 
   listItemBullet: {
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: 12,
+    lineHeight: 22,
     color: "#374151",
   },
 
@@ -76,19 +76,6 @@ export const markdownStyles = {
     borderLeftWidth: 4,
     borderLeftColor: "#E5E7EB",
     paddingLeft: 12,
-    marginBottom: 12,
-  },
-
-  code_inline: {
-    color: "#111827",
-    backgroundColor: "#F3F4F6",
-    fontSize: 14,
-  },
-
-  code_block: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
-    padding: 12,
     marginBottom: 12,
   },
 

@@ -12,9 +12,8 @@ export function usePost(postId: number) {
     setError("");
 
     try {
-      const response = await apiRequest<any>(`/posts/${postId}`);
-      const data = response.data ?? response;
-      setPost(data);
+      const response = await apiRequest<PostItem>(`/posts/${postId}`);
+      setPost(response);
     } catch (err: any) {
       setError(err.message || "포스트를 불러오지 못했습니다.");
     } finally {

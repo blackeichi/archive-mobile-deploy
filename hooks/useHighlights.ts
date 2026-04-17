@@ -1,4 +1,4 @@
-import { HighlightMap } from "@/constants/types";
+import { HighlightItem, HighlightMap } from "@/constants/types";
 import { apiRequest } from "@/lib/api";
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
@@ -13,9 +13,8 @@ export function useGetHighlights(postId: number) {
     setError("");
 
     try {
-      const response = await apiRequest<any>(`/highlight/${postId}`);
-      const data = response.data ?? response;
-      setHighLights(data.highlights);
+      const response = await apiRequest<HighlightItem>(`/highlight/${postId}`);
+      setHighLights(response.highlights);
     } catch (err: any) {
       setError(err.message || "하이라이트를 불러오지 못했습니다.");
     } finally {
