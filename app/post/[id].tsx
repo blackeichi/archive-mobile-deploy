@@ -1,5 +1,5 @@
 import MarkdownViewer from "@/components/MarkdownViewer";
-import TopContents from "@/components/posts/TopContents";
+import TopContents from "@/components/post/TopContents";
 import { useGetHighlights, useSaveHighlights } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
 import { useLocalSearchParams, useRouter } from "expo-router";

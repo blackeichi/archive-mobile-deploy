@@ -47,7 +47,7 @@ export default function CategoryPostsScreen() {
             key={post.id}
             onPress={() =>
               router.push({
-                pathname: "/posts/[id]",
+                pathname: "/post/[id]",
                 params: { id: String(post.id) },
               })
             }

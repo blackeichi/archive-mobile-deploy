@@ -18,8 +18,7 @@ export default function RootLayout() {
       {user ? (
         <>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="categories/[id]" />
-          <Stack.Screen name="posts/[id]" />
+          <Stack.Screen name="post/[id]" />
         </>
       ) : (
         <Stack.Screen name="(auth)" />
