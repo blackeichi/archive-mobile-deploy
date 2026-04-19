@@ -1,4 +1,5 @@
 import Entypo from "@expo/vector-icons/Entypo";
+import Feather from "@expo/vector-icons/Feather";
 import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs } from "expo-router";
 
@@ -35,7 +36,15 @@ export default function TabsLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen name="" options={{ title: "설정" }} /> */}
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "설정",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="settings" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
