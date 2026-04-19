@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { PostItem } from "../constants/types";
+import type { PostListItem } from "../constants/types";
 import { apiRequest } from "../lib/api";
 
 export function useCategoryPosts(categoryId: number) {
-  const [posts, setPosts] = useState<PostItem[]>([]);
+  const [posts, setPosts] = useState<PostListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -12,7 +12,7 @@ export function useCategoryPosts(categoryId: number) {
     setError("");
 
     try {
-      const response = await apiRequest<PostItem[]>(
+      const response = await apiRequest<PostListItem[]>(
         `/posts/category/${categoryId}`,
       );
       setPosts(response);

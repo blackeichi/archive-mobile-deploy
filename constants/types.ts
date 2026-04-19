@@ -20,10 +20,22 @@ export interface PostItem {
   summary?: string | null;
   thumbnail_url?: string | null;
   visibility: "public" | "private";
-  is_deleted: boolean;
   created_at: string;
   updated_at: string;
   category_name: string;
+}
+
+export interface PostListItem {
+  id: number;
+  title: string;
+  slug: string;
+  author_id: string;
+  summary?: string | null;
+  category_id: number;
+  created_at: string;
+  visibility: "public" | "private";
+  author_name: string;
+  authorized: boolean;
 }
 
 export type HighlightMap = Record<string, string>;
