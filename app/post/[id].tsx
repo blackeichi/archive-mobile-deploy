@@ -82,7 +82,7 @@ export default function PostDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centerBox}>
-          <Text style={styles.errorTitle}>문제가 발생했어요</Text>
+          <Text style={styles.errorTitle}>😢 문제가 발생했어요</Text>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       </SafeAreaView>
@@ -93,7 +93,7 @@ export default function PostDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centerBox}>
-          <Text style={styles.errorTitle}>포스트가 없어요</Text>
+          <Text style={styles.errorTitle}>🚧 포스트가 없어요</Text>
           <Text style={styles.errorText}>
             삭제되었거나 불러올 수 없는 글입니다.
           </Text>
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   errorTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: "#111827",
     marginBottom: 8,
