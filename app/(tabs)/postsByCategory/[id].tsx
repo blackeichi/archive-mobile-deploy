@@ -2,6 +2,7 @@ import { useCategoryPosts } from "@/hooks/useCategoryPosts";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -45,12 +46,19 @@ export default function CategoryPostsScreen() {
         posts.map((post) => (
           <Pressable
             key={post.id}
-            onPress={() =>
-              router.push({
-                pathname: "/post/[id]",
-                params: { id: String(post.id) },
-              })
-            }
+            onPress={() => {
+              if (post.authorized) {
+                router.push({
+                  pathname: "/post/[id]",
+                  params: { id: String(post.id) },
+                });
+              } else {
+                Alert.alert(
+                  "접근 권한 없음",
+                  "이 포스트에 접근할 권한이 없습니다.",
+                );
+              }
+            }}
             style={{
               marginBottom: 16,
               padding: 16,
