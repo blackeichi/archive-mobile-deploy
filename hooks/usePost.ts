@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { PostItem } from "../constants/types";
+import type { PostDetail } from "../constants/types";
 import { apiRequest } from "../lib/api";
 
 export function usePost(postId: number) {
-  const [post, setPost] = useState<PostItem | null>(null);
+  const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -12,7 +12,7 @@ export function usePost(postId: number) {
     setError("");
 
     try {
-      const response = await apiRequest<PostItem>(`/posts/${postId}`);
+      const response = await apiRequest<PostDetail>(`/posts/${postId}`);
       setPost(response);
     } catch (err: any) {
       setError(err.message || "포스트를 불러오지 못했습니다.");

@@ -50,7 +50,12 @@ export default function CategoryPostsScreen() {
               if (post.authorized) {
                 router.push({
                   pathname: "/post/[id]",
-                  params: { id: String(post.id) },
+                  params: {
+                    id: String(post.id),
+                    title: post.title,
+                    visibility: post.visibility,
+                    created_at: post.created_at,
+                  },
                 });
               } else {
                 Alert.alert(

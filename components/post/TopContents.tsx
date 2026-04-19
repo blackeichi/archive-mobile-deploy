@@ -1,4 +1,4 @@
-import { PostItem } from "@/constants/types";
+import { PostDetail } from "@/constants/types";
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -11,7 +11,7 @@ function formatDate(value?: string) {
   ).padStart(2, "0")}`;
 }
 
-function getVisibilityLabel(visibility?: PostItem["visibility"]) {
+function getVisibilityLabel(visibility?: PostDetail["visibility"]) {
   switch (visibility) {
     case "public":
       return "공개";
@@ -22,10 +22,9 @@ function getVisibilityLabel(visibility?: PostItem["visibility"]) {
   }
 }
 
-const TopContents = ({ post }: { post: PostItem }) => {
+const TopContents = ({ post }: { post: Partial<PostDetail> }) => {
   const visibilityLabel = getVisibilityLabel(post.visibility);
   const createdAt = formatDate(post.created_at);
-  const updatedAt = formatDate(post.updated_at);
   return (
     <>
       <View style={styles.header}>
@@ -40,9 +39,6 @@ const TopContents = ({ post }: { post: PostItem }) => {
             </View>
           )}
           {!!createdAt && <Text style={styles.metaText}>작성 {createdAt}</Text>}
-          {!!updatedAt && updatedAt !== createdAt && (
-            <Text style={styles.metaText}>수정 {updatedAt}</Text>
-          )}
         </View>
       </View>
     </>

@@ -10,30 +10,28 @@ export interface CategoryNode {
   children?: CategoryNode[];
 }
 
-export interface PostItem {
+export type PostVisibility = "public" | "private";
+
+export interface PostBase {
   id: number;
-  author_id: string;
-  category_id: number;
   title: string;
   slug: string;
+  author_id: string;
+  category_id: number;
+  visibility: PostVisibility;
+  created_at: string;
+}
+
+export interface PostDetail extends PostBase {
   content_md: string;
   summary?: string | null;
   thumbnail_url?: string | null;
-  visibility: "public" | "private";
-  created_at: string;
   updated_at: string;
   category_name: string;
 }
 
-export interface PostListItem {
-  id: number;
-  title: string;
-  slug: string;
-  author_id: string;
+export interface PostSummary extends PostBase {
   summary?: string | null;
-  category_id: number;
-  created_at: string;
-  visibility: "public" | "private";
   author_name: string;
   authorized: boolean;
 }

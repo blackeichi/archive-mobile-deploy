@@ -1,5 +1,7 @@
 import MarkdownViewer from "@/components/MarkdownViewer";
+import { MarkdownViewerSkeleton } from "@/components/MarkdownViewer/MarkdownViewerSkeleton";
 import TopContents from "@/components/post/TopContents";
+import type { PostDetail } from "@/constants/types";
 import {
   useDeleteHighlights,
   useGetHighlights,
@@ -10,7 +12,6 @@ import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -22,8 +23,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDetailScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{
+    id: string;
+    title?: string;
+    visibility?: string;
+    created_at?: string;
+  }>();
   const postId = Number(params.id);
+
+  const previewPost: Partial<PostDetail> = {
+    title: params.title,
+    visibility: params.visibility as PostDetail["visibility"] | undefined,
+    created_at: params.created_at,
+  };
 
   const { post, loading, error } = usePost(postId);
   const { highLights, setHighLights } = useGetHighlights(postId);
@@ -66,17 +78,6 @@ export default function PostDetailScreen() {
     setIsChanged(false);
   });
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.centerBox}>
-          <ActivityIndicator size="small" />
-          <Text style={styles.stateText}>포스트를 불러오는 중...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   if (error) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -88,7 +89,7 @@ export default function PostDetailScreen() {
     );
   }
 
-  if (!post) {
+  if (!loading && !post) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centerBox}>
@@ -107,12 +108,12 @@ export default function PostDetailScreen() {
           <Text style={styles.backButtonText}>←</Text>
         </Pressable>
         <View style={styles.actionButtons}>
-          {hasHighlights && (
+          {!loading && hasHighlights && (
             <Pressable style={styles.deleteButton} onPress={confirmDelete}>
               <MaterialIcons name="delete-sweep" size={24} />
             </Pressable>
           )}
-          {isChanged && (
+          {!loading && isChanged && (
             <Pressable style={styles.saveButton} onPress={confirmSave}>
               <Feather name="save" size={24} />
             </Pressable>
@@ -125,13 +126,17 @@ export default function PostDetailScreen() {
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
-          <TopContents post={post} />
-          <MarkdownViewer
-            content={post.content_md || ""}
-            highlightMap={highLights}
-            setHighLights={setHighLights}
-            setIsChanged={setIsChanged}
-          />
+          <TopContents post={loading ? previewPost : post!} />
+          {loading ? (
+            <MarkdownViewerSkeleton />
+          ) : (
+            <MarkdownViewer
+              content={post!.content_md || ""}
+              highlightMap={highLights}
+              setHighLights={setHighLights}
+              setIsChanged={setIsChanged}
+            />
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -175,11 +180,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
     backgroundColor: "#F9FAFB",
-  },
-  stateText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: "#6B7280",
   },
   backButton: {
     width: 40,
