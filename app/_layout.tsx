@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function RootLayout() {
   const { user, loading } = useAuth();
+
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -14,14 +15,14 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {user ? (
-        <>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="post/[id]" />
-        </>
-      ) : (
+      <Stack.Protected guard={!user}>
         <Stack.Screen name="(auth)" />
-      )}
+      </Stack.Protected>
+
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="post/[id]" />
+      </Stack.Protected>
     </Stack>
   );
 }

@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import {
   Button,
@@ -12,11 +12,15 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { user, signIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  if (user) {
+    return <Redirect href="/(tabs)" />;
+  }
 
   const onSubmit = async () => {
     setErrorMessage("");
