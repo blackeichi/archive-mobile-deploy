@@ -32,6 +32,7 @@ export interface PostDetail extends PostBase {
 
 export interface PostSummary extends PostBase {
   summary?: string | null;
+  thumbnail_url?: string | null;
   author_name: string;
   authorized: boolean;
 }
