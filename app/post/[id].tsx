@@ -1,3 +1,4 @@
+import type { CustomScrollViewHandle } from "@/components/common/CustomScrollView";
 import CustomScrollView from "@/components/common/CustomScrollView";
 import MarkdownViewer from "@/components/MarkdownViewer";
 import { MarkdownViewerSkeleton } from "@/components/MarkdownViewer/MarkdownViewerSkeleton";
@@ -9,11 +10,12 @@ import {
   useSaveHighlights,
 } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
+import { bookmarkStorage } from "@/lib/bookmark-storage";
 import { useAppTheme } from "@/providers/ThemeProvider";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDetailScreen() {
@@ -43,6 +45,54 @@ export default function PostDetailScreen() {
     confirmSave,
     loading: saveLoading,
   } = useSaveHighlights(postId, highLights);
+
+  const scrollRef = useRef<CustomScrollViewHandle>(null);
+  const currentScrollY = useRef(0);
+  const [hasBookmark, setHasBookmark] = useState(false);
+  const [bookmarkModalVisible, setBookmarkModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+    let cancelled = false;
+    bookmarkStorage.getPosition(postId).then((y) => {
+      if (cancelled || y === null) return;
+      setHasBookmark(true);
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ y, animated: true });
+        setBookmarkModalVisible(true);
+      }, 300);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, postId]);
+
+  const handleSaveBookmark = useCallback(async () => {
+    await bookmarkStorage.setPosition(postId, currentScrollY.current);
+    setHasBookmark(true);
+  }, [postId]);
+
+  const handleRemoveBookmark = useCallback(async () => {
+    await bookmarkStorage.remove(postId);
+    setHasBookmark(false);
+    setBookmarkModalVisible(false);
+  }, [postId]);
+
+  const handleBookmarkPress = useCallback(() => {
+    if (hasBookmark) {
+      Alert.alert(
+        "책갈피",
+        "책갈피를 삭제하시겠습니까?",
+        [
+          { text: "취소", style: "cancel" },
+          { text: "삭제", onPress: handleRemoveBookmark },
+        ],
+        { cancelable: true },
+      );
+    } else {
+      handleSaveBookmark();
+    }
+  }, [hasBookmark, handleSaveBookmark, handleRemoveBookmark]);
 
   const navigation = useNavigation();
 
@@ -128,17 +178,38 @@ export default function PostDetailScreen() {
               )}
             </Pressable>
           )}
+          {!loading && (
+            <Pressable style={styles.iconButton} onPress={handleBookmarkPress}>
+              {hasBookmark ? (
+                <FontAwesome
+                  name="bookmark"
+                  size={18}
+                  color={theme.colors.text}
+                />
+              ) : (
+                <FontAwesome
+                  name="bookmark-o"
+                  size={18}
+                  color={theme.colors.text}
+                />
+              )}
+            </Pressable>
+          )}
         </View>
       </View>
 
       <View style={styles.page}>
         <CustomScrollView
+          ref={scrollRef}
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
           trackTop={54}
           trackBottom={12}
           trackRight={6}
           trackWidth={4}
+          onScroll={(e) => {
+            currentScrollY.current = e.nativeEvent.contentOffset.y;
+          }}
         >
           <TopContents post={loading ? previewPost : post!} />
           {loading ? (
@@ -153,6 +224,39 @@ export default function PostDetailScreen() {
           )}
         </CustomScrollView>
       </View>
+
+      <Modal
+        transparent
+        visible={bookmarkModalVisible}
+        animationType="fade"
+        onRequestClose={() => setBookmarkModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setBookmarkModalVisible(false)}
+        >
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>📌 책갈피</Text>
+            <Text style={styles.modalMessage}>
+              책갈피로 이동이 완료되었습니다.{"\n"}책갈피를 제거하시겠습니까?
+            </Text>
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={() => setBookmarkModalVisible(false)}
+              >
+                <Text style={styles.modalButtonCancelText}>유지</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={handleRemoveBookmark}
+              >
+                <Text style={styles.modalButtonConfirmText}>제거</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -228,6 +332,64 @@ function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.colors.surfaceSecondary,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.45)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    modalBox: {
+      width: 300,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      padding: 24,
+      alignItems: "center",
+      shadowColor: theme.colors.shadow,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    modalTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: theme.colors.text,
+      marginBottom: 10,
+    },
+    modalMessage: {
+      fontSize: 14,
+      lineHeight: 22,
+      color: theme.colors.textSecondary,
+      textAlign: "center",
+      marginBottom: 20,
+    },
+    modalButtons: {
+      flexDirection: "row",
+      gap: 10,
+    },
+    modalButton: {
+      flex: 1,
+      height: 40,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    modalButtonCancel: {
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+    modalButtonCancelText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.colors.text,
+    },
+    modalButtonConfirm: {
+      backgroundColor: theme.colors.danger,
+    },
+    modalButtonConfirmText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#FFFFFF",
     },
   });
 }

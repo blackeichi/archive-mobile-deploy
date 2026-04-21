@@ -1,5 +1,12 @@
 import { useAppTheme } from "@/providers/ThemeProvider";
-import React, { ReactNode, useMemo, useState } from "react";
+import React, {
+  ReactNode,
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -12,6 +19,10 @@ import {
   ViewStyle,
 } from "react-native";
 
+export type CustomScrollViewHandle = {
+  scrollTo: (options: { y: number; animated?: boolean }) => void;
+};
+
 type CustomScrollViewProps = ScrollViewProps & {
   children: ReactNode;
   trackTop?: number;
@@ -23,23 +34,36 @@ type CustomScrollViewProps = ScrollViewProps & {
   containerStyle?: StyleProp<ViewStyle>;
 };
 
-export default function CustomScrollView({
-  children,
-  style,
-  contentContainerStyle,
-  trackTop = 12,
-  trackBottom = 12,
-  trackRight = 6,
-  trackWidth = 4,
-  minThumbHeight = 36,
-  hideIndicatorWhenShort = true,
-  containerStyle,
-  onScroll,
-  onContentSizeChange,
-  ...scrollViewProps
-}: CustomScrollViewProps) {
+const CustomScrollView = forwardRef<
+  CustomScrollViewHandle,
+  CustomScrollViewProps
+>(function CustomScrollView(
+  {
+    children,
+    style,
+    contentContainerStyle,
+    trackTop = 12,
+    trackBottom = 12,
+    trackRight = 6,
+    trackWidth = 4,
+    minThumbHeight = 36,
+    hideIndicatorWhenShort = true,
+    containerStyle,
+    onScroll,
+    onContentSizeChange,
+    ...scrollViewProps
+  },
+  ref,
+) {
   const { theme } = useAppTheme();
   const styles = createStyles(theme);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useImperativeHandle(ref, () => ({
+    scrollTo: ({ y, animated = true }) => {
+      scrollViewRef.current?.scrollTo({ y, animated });
+    },
+  }));
 
   const [containerHeight, setContainerHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(1);
@@ -94,6 +118,7 @@ export default function CustomScrollView({
     >
       <ScrollView
         {...scrollViewProps}
+        ref={scrollViewRef}
         style={style}
         contentContainerStyle={contentContainerStyle}
         onScroll={handleScroll}
@@ -130,7 +155,9 @@ export default function CustomScrollView({
       )}
     </View>
   );
-}
+});
+
+export default CustomScrollView;
 
 function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
   return StyleSheet.create({
