@@ -3,7 +3,7 @@ export function splitIntoSentences(text: string): string[] {
   if (!normalized) return [];
 
   const parts = normalized
-    .split(/(?<=[.!?。！？])\s+|(?<=다\.)\s+|\n+/)
+    .split(/(?<=다\.)\s+|\n+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
