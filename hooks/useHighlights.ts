@@ -1,5 +1,6 @@
 import { HighlightItem, HighlightMap } from "@/constants/types";
 import { apiRequest } from "@/lib/api";
+import { useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -78,6 +79,34 @@ export function useSaveHighlights(postId: number, highLights: HighlightMap) {
       Alert.alert("🚨 오류 발생", message);
     }
   }, [isChanged, saveHighlights, highLights]);
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      if (!isChanged) return;
+
+      e.preventDefault();
+
+      Alert.alert(
+        "🔔 저장하지 않은 변경사항",
+        "저장하지 않은 하이라이트는 삭제됩니다. 계속할까요?",
+        [
+          { text: "취소", style: "cancel" },
+          {
+            text: "확인",
+            style: "destructive",
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ],
+        { cancelable: true },
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation, isChanged]);
 
   return {
     isChanged,

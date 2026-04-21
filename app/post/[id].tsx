@@ -1,21 +1,20 @@
-import type { CustomScrollViewHandle } from "@/components/common/CustomScrollView";
 import CustomScrollView from "@/components/common/CustomScrollView";
 import MarkdownViewer from "@/components/MarkdownViewer";
 import { MarkdownViewerSkeleton } from "@/components/MarkdownViewer/MarkdownViewerSkeleton";
 import TopContents from "@/components/post/TopContents";
 import type { PostDetail } from "@/constants/types";
+import { useBookmark } from "@/hooks/useBookmark";
 import {
   useDeleteHighlights,
   useGetHighlights,
   useSaveHighlights,
 } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
-import { bookmarkStorage } from "@/lib/bookmark-storage";
 import { useAppTheme } from "@/providers/ThemeProvider";
 import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDetailScreen() {
@@ -38,7 +37,9 @@ export default function PostDetailScreen() {
   };
 
   const { post, loading, error } = usePost(postId);
+
   const { highLights, setHighLights } = useGetHighlights(postId);
+
   const {
     isChanged,
     setIsChanged,
@@ -46,87 +47,22 @@ export default function PostDetailScreen() {
     loading: saveLoading,
   } = useSaveHighlights(postId, highLights);
 
-  const scrollRef = useRef<CustomScrollViewHandle>(null);
-  const currentScrollY = useRef(0);
-  const [hasBookmark, setHasBookmark] = useState(false);
-  const [bookmarkModalVisible, setBookmarkModalVisible] = useState(false);
-
-  useEffect(() => {
-    if (loading) return;
-    let cancelled = false;
-    bookmarkStorage.getPosition(postId).then((y) => {
-      if (cancelled || y === null) return;
-      setHasBookmark(true);
-      setTimeout(() => {
-        scrollRef.current?.scrollTo({ y, animated: true });
-        setBookmarkModalVisible(true);
-      }, 300);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [loading, postId]);
-
-  const handleSaveBookmark = useCallback(async () => {
-    await bookmarkStorage.setPosition(postId, currentScrollY.current);
-    setHasBookmark(true);
-  }, [postId]);
-
-  const handleRemoveBookmark = useCallback(async () => {
-    await bookmarkStorage.remove(postId);
-    setHasBookmark(false);
-    setBookmarkModalVisible(false);
-  }, [postId]);
-
-  const handleBookmarkPress = useCallback(() => {
-    if (hasBookmark) {
-      Alert.alert(
-        "책갈피",
-        "책갈피를 삭제하시겠습니까?",
-        [
-          { text: "취소", style: "cancel" },
-          { text: "삭제", onPress: handleRemoveBookmark },
-        ],
-        { cancelable: true },
-      );
-    } else {
-      handleSaveBookmark();
-    }
-  }, [hasBookmark, handleSaveBookmark, handleRemoveBookmark]);
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-      if (!isChanged) return;
-
-      e.preventDefault();
-
-      Alert.alert(
-        "🔔 저장하지 않은 변경사항",
-        "저장하지 않은 하이라이트는 삭제됩니다. 계속할까요?",
-        [
-          { text: "취소", style: "cancel" },
-          {
-            text: "확인",
-            style: "destructive",
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ],
-        { cancelable: true },
-      );
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigation, isChanged]);
-
-  const hasHighlights = Object.keys(highLights).length > 0;
   const { confirmDelete } = useDeleteHighlights(postId, () => {
     setHighLights({});
     setIsChanged(false);
   });
+
+  const {
+    handleBookmarkPress,
+    hasBookmark,
+    scrollRef,
+    currentScrollY,
+    bookmarkModalVisible,
+    setBookmarkModalVisible,
+    handleRemoveBookmark,
+  } = useBookmark({ loading, postId });
+
+  const hasHighlights = Object.keys(highLights).length > 0;
 
   if (error) {
     return (
