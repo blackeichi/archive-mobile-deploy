@@ -87,6 +87,28 @@ export function getMarkdownStyles(theme: AppTheme) {
       padding: 3,
       paddingLeft: 12,
       marginBottom: 8,
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+
+    code_inline: {
+      fontFamily: "monospace",
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+
+    code_block: {
+      fontFamily: "monospace",
+      backgroundColor: theme.colors.surfaceSecondary,
+      padding: 8,
+      borderRadius: 8,
+      marginVertical: 12,
+    },
+
+    fence: {
+      fontFamily: "monospace",
+      backgroundColor: theme.colors.surfaceSecondary,
+      padding: 8,
+      borderRadius: 8,
+      marginVertical: 12,
     },
 
     link: {

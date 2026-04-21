@@ -23,8 +23,9 @@ type MarkdownRenderStyles = Record<string, any>;
 type CounterKey = "h1" | "h2" | "h3" | "h4" | "p" | "li" | "blockquote";
 
 function flattenText(value: React.ReactNode): string {
-  if (typeof value === "string" || typeof value === "number")
+  if (typeof value === "string" || typeof value === "number") {
     return String(value);
+  }
   if (Array.isArray(value)) return value.map(flattenText).join("");
   if (React.isValidElement(value)) {
     return flattenText(
@@ -32,6 +33,67 @@ function flattenText(value: React.ReactNode): string {
     );
   }
   return "";
+}
+
+function normalizeHexColor(color: string) {
+  const hex = color.replace("#", "").trim();
+  if (hex.length === 3) {
+    return hex
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+  return hex.slice(0, 6);
+}
+
+function getContrastTextColor(backgroundColor: string) {
+  const hex = normalizeHexColor(backgroundColor);
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  if ([r, g, b].some((value) => Number.isNaN(value))) {
+    return "#111827";
+  }
+
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.62 ? "#111827" : "#F9FAFB";
+}
+
+function applyTextColorRecursively(
+  node: React.ReactNode,
+  textColor: string,
+): React.ReactNode {
+  if (node == null || typeof node === "boolean") return node;
+
+  if (typeof node === "string" || typeof node === "number") {
+    return <Text style={{ color: textColor }}>{node}</Text>;
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child, index) => (
+      <React.Fragment key={index}>
+        {applyTextColorRecursively(child, textColor)}
+      </React.Fragment>
+    ));
+  }
+
+  if (!React.isValidElement(node)) return node;
+
+  const element = node as React.ReactElement<{ style?: any; children?: React.ReactNode }>;
+  const nextChildren = applyTextColorRecursively(element.props.children, textColor);
+  const isTextElement = element.type === Text;
+
+  return React.cloneElement(element, {
+    ...(isTextElement
+      ? {
+          style: Array.isArray(element.props.style)
+            ? [...element.props.style, { color: textColor }]
+            : [element.props.style, { color: textColor }],
+        }
+      : null),
+    children: nextChildren,
+  });
 }
 
 export function createMarkdownRules(
@@ -62,6 +124,7 @@ export function createMarkdownRules(
     return {
       backgroundColor: color,
       borderRadius: 8,
+      color: getContrastTextColor(color),
     } as const;
   };
 
@@ -73,13 +136,15 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("h1");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Text
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.heading1, getHighlightStyle(id)]}
+          style={[styles.heading1, highlightStyle]}
         >
-          {children}
+          {textColor ? applyTextColorRecursively(children, textColor) : children}
         </Text>
       );
     },
@@ -91,13 +156,15 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("h2");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Text
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.heading2, getHighlightStyle(id)]}
+          style={[styles.heading2, highlightStyle]}
         >
-          {children}
+          {textColor ? applyTextColorRecursively(children, textColor) : children}
         </Text>
       );
     },
@@ -109,13 +176,15 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("h3");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Text
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.heading3, getHighlightStyle(id)]}
+          style={[styles.heading3, highlightStyle]}
         >
-          {children}
+          {textColor ? applyTextColorRecursively(children, textColor) : children}
         </Text>
       );
     },
@@ -127,13 +196,15 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("h4");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Text
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.heading4, getHighlightStyle(id)]}
+          style={[styles.heading4, highlightStyle]}
         >
-          {children}
+          {textColor ? applyTextColorRecursively(children, textColor) : children}
         </Text>
       );
     },
@@ -171,6 +242,7 @@ export function createMarkdownRules(
                       ? {
                           backgroundColor: sentenceColor,
                           borderRadius: 8,
+                          color: getContrastTextColor(sentenceColor),
                         }
                       : null,
                   ]}
@@ -191,14 +263,20 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("li");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Pressable
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.listItem, getHighlightStyle(id)]}
+          style={[styles.listItem, highlightStyle]}
         >
-          <Text style={styles.listItemBullet}>• </Text>
-          <View style={styles.listItemContent}>{children}</View>
+          <Text style={[styles.listItemBullet, textColor ? { color: textColor } : null]}>
+            •{" "}
+          </Text>
+          <View style={styles.listItemContent}>
+            {textColor ? applyTextColorRecursively(children, textColor) : children}
+          </View>
         </Pressable>
       );
     },
@@ -210,13 +288,15 @@ export function createMarkdownRules(
       styles: MarkdownRenderStyles,
     ) => {
       const id = nextId("blockquote");
+      const highlightStyle = getHighlightStyle(id);
+      const textColor = highlightStyle?.color;
       return (
         <Pressable
           key={node.key}
           onLongPress={(e) => handleLongPress(id, e)}
-          style={[styles.blockquote, getHighlightStyle(id)]}
+          style={[styles.blockquote, highlightStyle]}
         >
-          {children}
+          {textColor ? applyTextColorRecursively(children, textColor) : children}
         </Pressable>
       );
     },
