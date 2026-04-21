@@ -48,6 +48,7 @@ function flattenCategories(categories: CategoryNode[]): CategoryNode[] {
 
 function PostCard({ post }: { post: PostSummary }) {
   const visibilityLabel = getVisibilityLabel(post.visibility);
+  const isPublic = post.visibility !== "private";
 
   const handlePress = () => {
     if (post.authorized) {
@@ -78,8 +79,22 @@ function PostCard({ post }: { post: PostSummary }) {
 
       <View style={styles.cardBody}>
         <View style={styles.cardTopRow}>
-          <View style={styles.metaBadge}>
-            <Text style={styles.metaBadgeText}>{visibilityLabel}</Text>
+          <View
+            style={[
+              styles.metaBadge,
+              isPublic ? styles.metaBadgePublic : styles.metaBadgePrivate,
+            ]}
+          >
+            <Text
+              style={[
+                styles.metaBadgeText,
+                isPublic
+                  ? styles.metaBadgeTextPublic
+                  : styles.metaBadgeTextPrivate,
+              ]}
+            >
+              {visibilityLabel}
+            </Text>
           </View>
           <Text style={styles.dateText}>{formatDate(post.created_at)}</Text>
         </View>
@@ -348,11 +363,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
+  },
+  metaBadgePublic: {
+    backgroundColor: "#DBEAFE",
+  },
+  metaBadgePrivate: {
     backgroundColor: "#F3F4F6",
   },
   metaBadgeText: {
     fontSize: 12,
     fontWeight: "700",
+  },
+  metaBadgeTextPublic: {
+    color: "#1E40AF",
+  },
+  metaBadgeTextPrivate: {
     color: "#374151",
   },
   dateText: {
