@@ -43,10 +43,12 @@ export default function PostDetailScreen() {
 
   const { post, loading, error } = usePost(postId);
   const { highLights, setHighLights } = useGetHighlights(postId);
-  const { isChanged, setIsChanged, confirmSave } = useSaveHighlights(
-    postId,
-    highLights,
-  );
+  const {
+    isChanged,
+    setIsChanged,
+    confirmSave,
+    loading: saveLoading,
+  } = useSaveHighlights(postId, highLights);
 
   const navigation = useNavigation();
 
@@ -125,7 +127,11 @@ export default function PostDetailScreen() {
           )}
           {!loading && isChanged && (
             <Pressable style={styles.iconButton} onPress={confirmSave}>
-              <Feather name="save" size={20} color={theme.colors.text} />
+              {saveLoading ? (
+                <Feather name="loader" size={20} color={theme.colors.text} />
+              ) : (
+                <Feather name="save" size={20} color={theme.colors.text} />
+              )}
             </Pressable>
           )}
         </View>

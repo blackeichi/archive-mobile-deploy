@@ -54,6 +54,7 @@ export function useSaveHighlights(postId: number, highLights: HighlightMap) {
           error instanceof Error
             ? error.message
             : "알 수 없는 오류가 발생했습니다.";
+        Alert.alert("🚨 오류 발생", message);
       } finally {
         setLoading(false);
       }
@@ -62,40 +63,27 @@ export function useSaveHighlights(postId: number, highLights: HighlightMap) {
   );
 
   const [isChanged, setIsChanged] = useState(false);
-  const confirmSave = useCallback(() => {
-    if (!isChanged || !saveHighlights) return;
-
-    Alert.alert(
-      "💾 하이라이트 저장",
-      "현재 하이라이트 내용을 저장할까요?",
-      [
-        {
-          text: "취소",
-          style: "cancel",
-        },
-        {
-          text: "확인",
-          onPress: async () => {
-            try {
-              await saveHighlights(highLights);
-              setIsChanged(false);
-            } catch (error) {
-              const message =
-                error instanceof Error
-                  ? error.message
-                  : "저장 중 오류가 발생했습니다.";
-            }
-          },
-        },
-      ],
-      { cancelable: true },
-    );
+  const confirmSave = useCallback(async () => {
+    if (!isChanged || !saveHighlights)
+      return Alert.alert(
+        "🚫 하이라이트 저장 실패",
+        "저장할 변경사항이 없거나 저장 기능이 준비되지 않았습니다.",
+      );
+    try {
+      await saveHighlights(highLights);
+      setIsChanged(false);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "저장 중 오류가 발생했습니다.";
+      Alert.alert("🚨 오류 발생", message);
+    }
   }, [isChanged, saveHighlights, highLights]);
 
   return {
     isChanged,
     setIsChanged,
     confirmSave,
+    loading,
   };
 }
 
@@ -104,7 +92,7 @@ export function useDeleteHighlights(postId: number, onSuccess: () => void) {
 
   const confirmDelete = useCallback(() => {
     Alert.alert(
-      "🚨 하이라이트 삭제",
+      "🗑️ 하이라이트 삭제",
       "모든 하이라이트를 삭제할까요?",
       [
         {
@@ -126,7 +114,7 @@ export function useDeleteHighlights(postId: number, onSuccess: () => void) {
                 error instanceof Error
                   ? error.message
                   : "삭제 중 오류가 발생했습니다.";
-              Alert.alert("오류", message);
+              Alert.alert("🚨 오류 발생", message);
             } finally {
               setLoading(false);
             }
