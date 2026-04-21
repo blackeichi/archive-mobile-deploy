@@ -8,9 +8,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "build:android": "expo prebuild --platform android --clean",
-    "rund:android": "expo run:android --variant release",
+    "run:android": "expo run:android --variant release",
     "android": "expo run:android",
-    "build:clouad": "eas build --platform android --profile preview --clear-cache"
+    "build:eas": "eas build --platform android --profile preview --clear-cache"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
