@@ -8,6 +8,7 @@ import {
   useSaveHighlights,
 } from "@/hooks/useHighlights";
 import { usePost } from "@/hooks/usePost";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -22,6 +23,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDetailScreen() {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
+
   const router = useRouter();
   const params = useLocalSearchParams<{
     id: string;
@@ -66,8 +70,8 @@ export default function PostDetailScreen() {
         { cancelable: true },
       );
     });
+
     return () => {
-      // navigation.addListener는 리스너 해제 함수를 반환. 그러므로 unsubscribe()를 호출하여 리스너를 제거할 수 있다.
       unsubscribe();
     };
   }, [navigation, isChanged]);
@@ -101,25 +105,32 @@ export default function PostDetailScreen() {
       </SafeAreaView>
     );
   }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.actionRow}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Pressable style={styles.iconButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>←</Text>
         </Pressable>
+
         <View style={styles.actionButtons}>
           {!loading && hasHighlights && (
-            <Pressable style={styles.deleteButton} onPress={confirmDelete}>
-              <MaterialIcons name="delete-sweep" size={24} />
+            <Pressable style={styles.iconButton} onPress={confirmDelete}>
+              <MaterialIcons
+                name="delete-sweep"
+                size={22}
+                color={theme.colors.text}
+              />
             </Pressable>
           )}
           {!loading && isChanged && (
-            <Pressable style={styles.saveButton} onPress={confirmSave}>
-              <Feather name="save" size={24} />
+            <Pressable style={styles.iconButton} onPress={confirmSave}>
+              <Feather name="save" size={20} color={theme.colors.text} />
             </Pressable>
           )}
         </View>
       </View>
+
       <View style={styles.page}>
         <ScrollView
           style={styles.container}
@@ -143,83 +154,76 @@ export default function PostDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    position: "relative",
-    backgroundColor: "white",
-  },
-  page: {
-    flex: 1,
-    paddingTop: 42,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 32,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#6B7280",
-    textAlign: "center",
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    backgroundColor: "#F9FAFB",
-  },
-  backButton: {
-    width: 40,
-    height: 36,
-  },
-  backButtonText: {
-    fontSize: 22,
-    fontWeight: "600",
-  },
-  actionRow: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 1000,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "white",
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    paddingTop: 32,
-    paddingBottom: 4,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  saveButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  deleteButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      position: "relative",
+      backgroundColor: theme.colors.background,
+    },
+    page: {
+      flex: 1,
+      paddingTop: 42,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 32,
+    },
+    errorTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.colors.text,
+      marginBottom: 8,
+    },
+    errorText: {
+      fontSize: 14,
+      lineHeight: 22,
+      color: theme.colors.textSecondary,
+      textAlign: "center",
+    },
+    centerBox: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 24,
+      backgroundColor: theme.colors.background,
+    },
+    backButtonText: {
+      fontSize: 22,
+      fontWeight: "600",
+      color: theme.colors.text,
+    },
+    actionRow: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      zIndex: 1000,
+      width: "100%",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+      paddingTop: 32,
+      paddingBottom: 4,
+    },
+    actionButtons: {
+      flexDirection: "row",
+      gap: 10,
+    },
+    iconButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+  });
+}

@@ -2,6 +2,7 @@ import { PostListSkeleton } from "@/components/post/PostListSkeleton";
 import type { CategoryNode, PostSummary } from "@/constants/types";
 import { useCategories } from "@/hooks/useCategories";
 import { useCategoryPosts } from "@/hooks/useCategoryPosts";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -46,9 +47,15 @@ function flattenCategories(categories: CategoryNode[]): CategoryNode[] {
   return result;
 }
 
-function PostCard({ post }: { post: PostSummary }) {
+function PostCard({
+  post,
+  theme,
+}: {
+  post: PostSummary;
+  theme: ReturnType<typeof useAppTheme>["theme"];
+}) {
+  const styles = createStyles(theme);
   const visibilityLabel = getVisibilityLabel(post.visibility);
-  const isPublic = post.visibility !== "private";
 
   const handlePress = () => {
     if (post.authorized) {
@@ -73,28 +80,18 @@ function PostCard({ post }: { post: PostSummary }) {
         <Image source={{ uri: post.thumbnail_url }} style={styles.thumbnail} />
       ) : (
         <View style={[styles.thumbnail, styles.thumbnailFallback]}>
-          <Ionicons name="image-outline" size={28} color="#9CA3AF" />
+          <Ionicons
+            name="image-outline"
+            size={28}
+            color={theme.colors.textMuted}
+          />
         </View>
       )}
 
       <View style={styles.cardBody}>
         <View style={styles.cardTopRow}>
-          <View
-            style={[
-              styles.metaBadge,
-              isPublic ? styles.metaBadgePublic : styles.metaBadgePrivate,
-            ]}
-          >
-            <Text
-              style={[
-                styles.metaBadgeText,
-                isPublic
-                  ? styles.metaBadgeTextPublic
-                  : styles.metaBadgeTextPrivate,
-              ]}
-            >
-              {visibilityLabel}
-            </Text>
+          <View style={styles.metaBadge}>
+            <Text style={styles.metaBadgeText}>{visibilityLabel}</Text>
           </View>
           <Text style={styles.dateText}>{formatDate(post.created_at)}</Text>
         </View>
@@ -107,21 +104,25 @@ function PostCard({ post }: { post: PostSummary }) {
           <Text style={styles.cardSummary} numberOfLines={2}>
             {post.summary}
           </Text>
-        ) : (
-          <Text style={styles.cardSummaryMuted}>
-            요약이 아직 등록되지 않았어요.
-          </Text>
-        )}
+        ) : null}
 
         <View style={styles.cardFooter}>
           <View style={styles.authorRow}>
-            <Ionicons name="person-circle-outline" size={16} color="#6B7280" />
+            <Ionicons
+              name="person-circle-outline"
+              size={16}
+              color={theme.colors.textSecondary}
+            />
             <Text style={styles.authorText}>{post.author_name}</Text>
           </View>
 
           <View style={styles.readMoreRow}>
             <Text style={styles.readMoreText}>읽어보기</Text>
-            <Ionicons name="chevron-forward" size={16} color="#111827" />
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={theme.colors.text}
+            />
           </View>
         </View>
       </View>
@@ -130,9 +131,11 @@ function PostCard({ post }: { post: PostSummary }) {
 }
 
 export default function CategoryPostsScreen() {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
+
   const params = useLocalSearchParams<{ id: string }>();
   const initialCategoryId = Number(params.id);
-
   const [selectedCategoryId, setSelectedCategoryId] =
     useState(initialCategoryId);
 
@@ -177,11 +180,6 @@ export default function CategoryPostsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerBadge}>
-          <Ionicons name="albums-outline" size={16} color="#111827" />
-          <Text style={styles.headerBadgeText}>카테고리 포스트</Text>
-        </View>
-
         <View style={styles.headerBlock}>
           <Text style={styles.headerTitle}>포스트 목록</Text>
           <Text style={styles.headerDescription}>
@@ -194,46 +192,46 @@ export default function CategoryPostsScreen() {
         {categoriesLoading ? (
           <PostListSkeleton />
         ) : (
-          <View style={styles.categorySection}>
-            <Text style={styles.sectionTitle}>카테고리</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryList}
+          >
+            {categoryList.map((category) => {
+              const isSelected = category.id === selectedCategoryId;
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryList}
-            >
-              {categoryList.map((category) => {
-                const isSelected = category.id === selectedCategoryId;
-
-                return (
-                  <Pressable
-                    key={category.id}
-                    onPress={() => setSelectedCategoryId(category.id)}
+              return (
+                <Pressable
+                  key={category.id}
+                  onPress={() => setSelectedCategoryId(category.id)}
+                  style={[
+                    styles.categoryChip,
+                    isSelected && styles.categoryChipSelected,
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.categoryChip,
-                      isSelected && styles.categoryChipSelected,
+                      styles.categoryChipText,
+                      isSelected && styles.categoryChipTextSelected,
                     ]}
                   >
-                    <Text
-                      style={[
-                        styles.categoryChipText,
-                        isSelected && styles.categoryChipTextSelected,
-                      ]}
-                    >
-                      {category.name}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </View>
+                    {category.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
         )}
 
         {postsLoading ? (
           <PostListSkeleton />
         ) : posts.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Ionicons name="document-text-outline" size={28} color="#9CA3AF" />
+            <Ionicons
+              name="document-text-outline"
+              size={28}
+              color={theme.colors.textMuted}
+            />
             <Text style={styles.emptyTitle}>아직 포스트가 없어요</Text>
             <Text style={styles.emptyDescription}>
               선택한 카테고리에는 아직 등록된 포스트가 없습니다.
@@ -242,7 +240,7 @@ export default function CategoryPostsScreen() {
         ) : (
           <View style={styles.list}>
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <PostCard key={post.id} post={post} theme={theme} />
             ))}
           </View>
         )}
@@ -251,220 +249,183 @@ export default function CategoryPostsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F8FAFC",
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  headerBadge: {
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "#E5E7EB",
-    marginBottom: 14,
-  },
-  headerBadgeText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  headerBlock: {
-    marginBottom: 20,
-    gap: 6,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  headerDescription: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#6B7280",
-  },
-  categorySection: {
-    marginBottom: 20,
-    gap: 10,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  categoryList: {
-    gap: 10,
-    paddingRight: 8,
-  },
-  categoryChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  categoryChipSelected: {
-    backgroundColor: "#111827",
-    borderColor: "#111827",
-  },
-  categoryChipText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#374151",
-  },
-  categoryChipTextSelected: {
-    color: "#FFFFFF",
-  },
-  list: {
-    gap: 16,
-  },
-  card: {
-    overflow: "hidden",
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#111827",
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 3,
-  },
-  thumbnail: {
-    width: "100%",
-    height: 180,
-    backgroundColor: "#E5E7EB",
-  },
-  thumbnailFallback: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cardBody: {
-    padding: 16,
-    gap: 12,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  metaBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  metaBadgePublic: {
-    backgroundColor: "#DBEAFE",
-  },
-  metaBadgePrivate: {
-    backgroundColor: "#F3F4F6",
-  },
-  metaBadgeText: {
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  metaBadgeTextPublic: {
-    color: "#1E40AF",
-  },
-  metaBadgeTextPrivate: {
-    color: "#374151",
-  },
-  dateText: {
-    fontSize: 12,
-    color: "#6B7280",
-  },
-  cardTitle: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  cardSummary: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#4B5563",
-  },
-  cardSummaryMuted: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#9CA3AF",
-  },
-  cardFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  authorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  authorText: {
-    fontSize: 13,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  readMoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-  },
-  readMoreText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  emptyCard: {
-    borderRadius: 18,
-    paddingVertical: 36,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  emptyDescription: {
-    fontSize: 14,
-    lineHeight: 22,
-    textAlign: "center",
-    color: "#6B7280",
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    backgroundColor: "#F9FAFB",
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: "#6B7280",
-    textAlign: "center",
-  },
-});
+function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+    },
+    headerBlock: {
+      marginBottom: 20,
+      gap: 6,
+    },
+    headerTitle: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    headerDescription: {
+      fontSize: 14,
+      lineHeight: 22,
+      color: theme.colors.textSecondary,
+    },
+    categoryList: {
+      gap: 10,
+      paddingRight: 8,
+      marginBottom: 20,
+    },
+    categoryChip: {
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 999,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    categoryChipSelected: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    categoryChipText: {
+      fontSize: 13,
+      fontWeight: "600",
+      color: theme.colors.text,
+    },
+    categoryChipTextSelected: {
+      color: theme.colors.primaryContrast,
+    },
+    list: {
+      gap: 16,
+    },
+    card: {
+      overflow: "hidden",
+      borderRadius: 20,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      shadowColor: theme.colors.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 3,
+    },
+    thumbnail: {
+      width: "100%",
+      height: 150,
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+    thumbnailFallback: {
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cardBody: {
+      padding: 16,
+      gap: 12,
+    },
+    cardTopRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+    },
+    metaBadge: {
+      alignSelf: "flex-start",
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 999,
+      backgroundColor: theme.colors.surfaceSecondary,
+    },
+    metaBadgeText: {
+      fontSize: 12,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    dateText: {
+      fontSize: 12,
+      color: theme.colors.textSecondary,
+    },
+    cardTitle: {
+      fontSize: 20,
+      lineHeight: 28,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    cardSummary: {
+      fontSize: 14,
+      lineHeight: 22,
+      color: theme.colors.textSecondary,
+    },
+    cardFooter: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 12,
+    },
+    authorRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+    },
+    authorText: {
+      fontSize: 13,
+      color: theme.colors.textSecondary,
+      fontWeight: "500",
+    },
+    readMoreRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 2,
+    },
+    readMoreText: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    emptyCard: {
+      borderRadius: 18,
+      paddingVertical: 36,
+      paddingHorizontal: 20,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: theme.colors.text,
+    },
+    emptyDescription: {
+      fontSize: 14,
+      lineHeight: 22,
+      textAlign: "center",
+      color: theme.colors.textSecondary,
+    },
+    centerBox: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 24,
+      backgroundColor: theme.colors.background,
+    },
+    errorTitle: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: theme.colors.text,
+      marginBottom: 8,
+    },
+    errorText: {
+      fontSize: 14,
+      lineHeight: 22,
+      color: theme.colors.textSecondary,
+      textAlign: "center",
+    },
+  });
+}

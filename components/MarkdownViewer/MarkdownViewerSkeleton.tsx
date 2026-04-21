@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/providers/ThemeProvider";
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 
@@ -5,15 +6,19 @@ function SkeletonBlock({
   width,
   height = 14,
   marginBottom = 8,
+  styles,
 }: {
   width: `${number}%` | number;
   height?: number;
   marginBottom?: number;
+  styles: ReturnType<typeof createStyles>;
 }) {
   return <View style={[styles.block, { width, height, marginBottom }]} />;
 }
 
 export function MarkdownViewerSkeleton() {
+  const { theme } = useAppTheme();
+  const styles = createStyles(theme);
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -37,46 +42,67 @@ export function MarkdownViewerSkeleton() {
 
   return (
     <Animated.View style={{ opacity }}>
-      {/* 헤딩 */}
-      <SkeletonBlock width="55%" height={20} marginBottom={14} />
-      {/* 단락 */}
-      <SkeletonBlock width="100%" marginBottom={8} />
-      <SkeletonBlock width="94%" marginBottom={8} />
-      <SkeletonBlock width="88%" marginBottom={8} />
-      <SkeletonBlock width="76%" marginBottom={24} />
+      <SkeletonBlock
+        styles={styles}
+        width="55%"
+        height={20}
+        marginBottom={14}
+      />
+      <SkeletonBlock styles={styles} width="100%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="94%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="88%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="76%" marginBottom={24} />
 
-      {/* 헤딩 */}
-      <SkeletonBlock width="45%" height={18} marginBottom={12} />
-      {/* 단락 */}
-      <SkeletonBlock width="100%" marginBottom={8} />
-      <SkeletonBlock width="91%" marginBottom={8} />
-      <SkeletonBlock width="85%" marginBottom={8} />
-      <SkeletonBlock width="70%" marginBottom={24} />
+      <SkeletonBlock
+        styles={styles}
+        width="45%"
+        height={18}
+        marginBottom={12}
+      />
+      <SkeletonBlock styles={styles} width="100%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="91%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="85%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="70%" marginBottom={24} />
 
-      {/* 코드 블록 */}
       <View style={styles.codeBlock}>
-        <SkeletonBlock width="65%" height={13} marginBottom={10} />
-        <SkeletonBlock width="48%" height={13} marginBottom={10} />
-        <SkeletonBlock width="57%" height={13} marginBottom={0} />
+        <SkeletonBlock
+          styles={styles}
+          width="65%"
+          height={13}
+          marginBottom={10}
+        />
+        <SkeletonBlock
+          styles={styles}
+          width="48%"
+          height={13}
+          marginBottom={10}
+        />
+        <SkeletonBlock
+          styles={styles}
+          width="57%"
+          height={13}
+          marginBottom={0}
+        />
       </View>
 
-      {/* 단락 */}
-      <SkeletonBlock width="100%" marginBottom={8} />
-      <SkeletonBlock width="89%" marginBottom={8} />
-      <SkeletonBlock width="60%" marginBottom={24} />
+      <SkeletonBlock styles={styles} width="100%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="89%" marginBottom={8} />
+      <SkeletonBlock styles={styles} width="60%" marginBottom={24} />
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  block: {
-    backgroundColor: "#E5E7EB",
-    borderRadius: 6,
-  },
-  codeBlock: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
-  },
-});
+function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
+  return StyleSheet.create({
+    block: {
+      backgroundColor: theme.colors.border,
+      borderRadius: 6,
+    },
+    codeBlock: {
+      backgroundColor: theme.colors.surfaceSecondary,
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 20,
+    },
+  });
+}

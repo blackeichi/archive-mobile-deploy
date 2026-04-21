@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/providers/ThemeProvider";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -6,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function TabsLayout() {
   const { user, loading } = useAuth();
+  const { theme } = useAppTheme();
 
   if (loading) return null;
   if (!user) return <Redirect href="/(auth)/login" />;
@@ -14,6 +16,12 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
+        },
+        tabBarActiveTintColor: theme.colors.text,
+        tabBarInactiveTintColor: theme.colors.textMuted,
       }}
     >
       <Tabs.Screen
