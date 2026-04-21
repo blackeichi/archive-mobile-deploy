@@ -90,7 +90,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
     },
     thumbnail: {
       width: "100%",
-      height: 180,
+      height: 150,
       backgroundColor: theme.colors.surfaceSecondary,
     },
     body: {

@@ -1,3 +1,4 @@
+import CustomScrollView from "@/components/common/CustomScrollView";
 import MarkdownViewer from "@/components/MarkdownViewer";
 import { MarkdownViewerSkeleton } from "@/components/MarkdownViewer/MarkdownViewerSkeleton";
 import TopContents from "@/components/post/TopContents";
@@ -12,14 +13,7 @@ import { useAppTheme } from "@/providers/ThemeProvider";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDetailScreen() {
@@ -59,7 +53,7 @@ export default function PostDetailScreen() {
       e.preventDefault();
 
       Alert.alert(
-        "😮 저장하지 않은 변경사항",
+        "🔔 저장하지 않은 변경사항",
         "저장하지 않은 하이라이트는 삭제됩니다. 계속할까요?",
         [
           { text: "취소", style: "cancel" },
@@ -138,10 +132,13 @@ export default function PostDetailScreen() {
       </View>
 
       <View style={styles.page}>
-        <ScrollView
+        <CustomScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
+          trackTop={54}
+          trackBottom={12}
+          trackRight={6}
+          trackWidth={4}
         >
           <TopContents post={loading ? previewPost : post!} />
           {loading ? (
@@ -154,7 +151,7 @@ export default function PostDetailScreen() {
               setIsChanged={setIsChanged}
             />
           )}
-        </ScrollView>
+        </CustomScrollView>
       </View>
     </SafeAreaView>
   );
@@ -179,6 +176,7 @@ function createStyles(theme: ReturnType<typeof useAppTheme>["theme"]) {
       paddingHorizontal: 16,
       paddingTop: 12,
       paddingBottom: 32,
+      paddingRight: 22,
     },
     errorTitle: {
       fontSize: 20,
